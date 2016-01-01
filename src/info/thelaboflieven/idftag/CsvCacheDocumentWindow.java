@@ -7,28 +7,20 @@ package info.thelaboflieven.idftag;
 
 import com.opencsv.CSVReader;
 import java.awt.BorderLayout;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Vector;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
-import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import thelaboflieven.DocumentSetIdfCalculator;
-import thelaboflieven.DocumentSetIdfCalculator.Top3Terms;
 
 /**
  *
@@ -92,6 +84,9 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Scanny");
 
+        jScrollPane1.setOpaque(false);
+
+        jTable1.setAutoCreateRowSorter(true);
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -108,7 +103,6 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
                 return types [columnIndex];
             }
         });
-        jTable1.setEnabled(false);
         jScrollPane1.setViewportView(jTable1);
 
         jTextPane1.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -204,7 +198,7 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextPane1KeyReleased
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-        SettingsFrame frame = new SettingsFrame();
+        CsvSettingsFrame frame = new CsvSettingsFrame();
         frame.setVisible(true);
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
@@ -217,9 +211,9 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
         model.setRowCount(0);
         String searchText = jTextPane1.getText();
         paths.stream().forEach((met) -> {
-            boolean match = met.filename.contains(searchText);
+            boolean match = met.filename.toLowerCase().contains(searchText.toLowerCase());
             if (met.tags != null)
-                match |= met.tags.contains(searchText);
+                match |= met.tags.toLowerCase().contains(searchText.toLowerCase());
             if (match) {
                 model.addRow(new Object[]{met.filename, met.size, met.tags, met.date});
             }
@@ -277,12 +271,13 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
         paths.clear();
         CSVReader reader = new CSVReader(new FileReader("C:\\Users\\lveeckha\\Desktop\\out.csv"), ';'); 
         reader.readNext();
+        SimpleDateFormat format = new  SimpleDateFormat("YYYY/MM/dd");
         for(String[] datacols : reader.readAll())
         {
             FileMetaData data = new FileMetaData();
             data.filename = datacols[0];
             data.size = Long.parseLong(datacols[1]);
-            data.date = new Date(Long.parseLong(datacols[2])).toGMTString();
+            data.date = format.format(new Date(Long.parseLong(datacols[2])));
             data.tags = datacols[3] + "," + datacols[4] + "," + datacols[5];
             if  (data.tags.equals(",,"))
                 data.tags = "";
