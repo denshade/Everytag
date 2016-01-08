@@ -36,7 +36,7 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
 
     private File csvSourceFile;
     private List<File> directories;
-
+    private final String LOCATION = "C:\\cache\\out.csv";
     /**
      * Creates new form DocumentWindows
      */
@@ -226,7 +226,7 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         try {
             try {
-                Top3CsvWriter.write(directories, csvSourceFile);
+                Top3CsvWriter.write(directories, new File(LOCATION));
             } catch (Exception ex) {
                 Logger.getLogger(CsvCacheDocumentWindow.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -345,19 +345,23 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
     private void loadData() throws FileNotFoundException, IOException
     {
         paths.clear();
-        CSVReader reader = new CSVReader(new FileReader("C:\\Users\\lveeckha\\Desktop\\out.csv"), ';'); 
-        reader.readNext();
-        SimpleDateFormat format = new SimpleDateFormat("YYYY/MM/dd");
-        for(String[] datacols : reader.readAll())
+        File file = new File(LOCATION);
+        if (file.exists())
         {
-            FileMetaData data = new FileMetaData();
-            data.filename = datacols[0];
-            data.size = Long.parseLong(datacols[1]);
-            data.date = format.format(new Date(Long.parseLong(datacols[2])));
-            data.tags = datacols[3] + "," + datacols[4] + "," + datacols[5];
-            if  (data.tags.equals(",,"))
-                data.tags = "";
-            paths.add(data);
+            CSVReader reader = new CSVReader(new FileReader(LOCATION), ';'); 
+            reader.readNext();
+            SimpleDateFormat format = new SimpleDateFormat("YYYY/MM/dd");
+            for(String[] datacols : reader.readAll())
+            {
+                FileMetaData data = new FileMetaData();
+                data.filename = datacols[0];
+                data.size = Long.parseLong(datacols[1]);
+                data.date = format.format(new Date(Long.parseLong(datacols[2])));
+                data.tags = datacols[3] + "," + datacols[4] + "," + datacols[5];
+                if  (data.tags.equals(",,"))
+                    data.tags = "";
+                paths.add(data);
+            }
         }
     }
  

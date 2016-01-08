@@ -203,7 +203,7 @@ public class DocumentWindows extends javax.swing.JFrame {
                     
                     paths.stream().forEach((FileMetaData meta) -> {
                         String fullpath = meta.path;
-                        String termName = term.filename;
+                        String termName = term.file.getAbsolutePath();
                         if (fullpath.equals(termName)) {
                             meta.tags = term.term1 + ";"+term.term2 + ";"+term.term3;                            
                         }
