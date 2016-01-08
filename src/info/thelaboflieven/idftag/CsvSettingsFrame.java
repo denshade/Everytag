@@ -31,9 +31,16 @@ public class CsvSettingsFrame extends javax.swing.JFrame {
         jList1.setModel(model);
         try { 
                 model.clear();
+                int l = 0;
                 for (String load : loadSettings()) 
                 {
-                    model.addElement(load);
+                    if (l++ == 0)
+                    {
+                        jTextField1.setText(load);
+                    } else 
+                    {
+                        model.addElement(load);
+                    }
                 }
         } catch (Exception e)
         {

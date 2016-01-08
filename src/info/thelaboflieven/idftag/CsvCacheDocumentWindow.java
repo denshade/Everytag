@@ -7,11 +7,14 @@ package info.thelaboflieven.idftag;
 
 import com.opencsv.CSVReader;
 import java.awt.BorderLayout;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -21,6 +24,7 @@ import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
+import thelaboflieven.Top3CsvWriter;
 
 /**
  *
@@ -30,11 +34,30 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
 
     private List<FileMetaData> paths = new ArrayList<>();
 
+    private File csvSourceFile;
+    private List<File> directories;
+
     /**
      * Creates new form DocumentWindows
      */
     public CsvCacheDocumentWindow() {
         initComponents();
+        
+        List<String> settings;
+        try {
+            settings = Arrays.asList(CsvSettingsFrame.loadSettings());
+            csvSourceFile = new File(settings.get(0));
+            directories = new ArrayList<>();
+            for (String file : settings.subList(1, settings.size()))
+            {
+                directories.add(new File(file));
+            }
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(CsvCacheDocumentWindow.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(CsvCacheDocumentWindow.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         final JDialog dlg = new JDialog(this, "Progress Dialog", true);
         JProgressBar dpb = new JProgressBar(0, 500);
         dpb.setIndeterminate(true);
@@ -78,8 +101,11 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
+        jSeparator1 = new javax.swing.JPopupMenu.Separator();
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
+        jMenuItem5 = new javax.swing.JMenuItem();
+        jMenuItem4 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Scanny");
@@ -130,7 +156,7 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
 
         jMenu1.setText("File");
 
-        jMenuItem1.setText("Scan");
+        jMenuItem1.setText("Refresh...");
         jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem1ActionPerformed(evt);
@@ -145,6 +171,7 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
             }
         });
         jMenu1.add(jMenuItem2);
+        jMenu1.add(jSeparator1);
 
         jMenuItem3.setText("Exit");
         jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
@@ -156,7 +183,24 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
 
         jMenuBar1.add(jMenu1);
 
-        jMenu2.setText("Edit");
+        jMenu2.setText("Open");
+
+        jMenuItem5.setText("Open file...");
+        jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem5ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem5);
+
+        jMenuItem4.setText("Open folder");
+        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem4ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem4);
+
         jMenuBar1.add(jMenu2);
 
         setJMenuBar(jMenuBar1);
@@ -181,6 +225,11 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         try {
+            try {
+                Top3CsvWriter.write(directories, csvSourceFile);
+            } catch (Exception ex) {
+                Logger.getLogger(CsvCacheDocumentWindow.class.getName()).log(Level.SEVERE, null, ex);
+            }
             //start the scan.
             loadData();
             resetTable();
@@ -205,6 +254,30 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
         System.exit(0);
     }//GEN-LAST:event_jMenuItem3ActionPerformed
+
+    private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
+        if (jTable1.getSelectedRow() > -1)
+        {
+           String file = jTable1.getModel().getValueAt(jTable1.getSelectedRow(), 0).toString();
+            try {
+                Runtime.getRuntime().exec("cmd /c \"" + file + "\"");
+            } catch (IOException ex) {
+                Logger.getLogger(CsvCacheDocumentWindow.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_jMenuItem5ActionPerformed
+
+    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+        if (jTable1.getSelectedRow() > -1)
+        {
+           File file = new File(paths.get(jTable1.getSelectedRow()).filename);
+            try {
+                Runtime.getRuntime().exec("explorer \"" + file.getParent() + "\"");
+            } catch (IOException ex) {
+                Logger.getLogger(CsvCacheDocumentWindow.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void resetTable() {
         final DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
@@ -259,9 +332,12 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
+    private javax.swing.JMenuItem jMenuItem4;
+    private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JTable jTable1;
     private javax.swing.JTextPane jTextPane1;
     // End of variables declaration//GEN-END:variables
@@ -271,7 +347,7 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
         paths.clear();
         CSVReader reader = new CSVReader(new FileReader("C:\\Users\\lveeckha\\Desktop\\out.csv"), ';'); 
         reader.readNext();
-        SimpleDateFormat format = new  SimpleDateFormat("YYYY/MM/dd");
+        SimpleDateFormat format = new SimpleDateFormat("YYYY/MM/dd");
         for(String[] datacols : reader.readAll())
         {
             FileMetaData data = new FileMetaData();
