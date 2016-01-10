@@ -305,13 +305,18 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
         model.setRowCount(0);
         String searchText = jTextPane1.getText();
         paths.stream().forEach((met) -> {
-            boolean match = met.filename.toLowerCase().contains(searchText.toLowerCase());
-            if (met.tags != null)
-                match |= met.tags.toLowerCase().contains(searchText.toLowerCase());
-            if (match) {
-                model.addRow(new Object[]{met.filename, met.size, met.tags, met.date});
+            if (met != null)
+            {
+                boolean match = true;
+                if (met.filename != null) {
+                    match = met.filename.toLowerCase().contains(searchText.toLowerCase());
+                } 
+                if (met.tags != null)
+                    match |= met.tags.toLowerCase().contains(searchText.toLowerCase());
+                if (match) {
+                    model.addRow(new Object[]{met.filename, met.size, met.tags, met.date});
+                }
             }
-
         });
     }
 
