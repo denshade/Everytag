@@ -99,13 +99,13 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
         jTextPane1 = new javax.swing.JTextPane();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
-        jMenuItem2 = new javax.swing.JMenuItem();
+        refreshMenuItem = new javax.swing.JMenuItem();
+        settingsMenuItem = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
-        jMenuItem3 = new javax.swing.JMenuItem();
+        exitMenuItem = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
-        jMenuItem5 = new javax.swing.JMenuItem();
-        jMenuItem4 = new javax.swing.JMenuItem();
+        openFileMenuItem = new javax.swing.JMenuItem();
+        openFolderMenuItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Scanny");
@@ -156,50 +156,53 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
 
         jMenu1.setText("File");
 
-        jMenuItem1.setText("Refresh...");
-        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+        refreshMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F5, 0));
+        refreshMenuItem.setText("Refresh...");
+        refreshMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem1ActionPerformed(evt);
+                refreshMenuItemActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem1);
+        jMenu1.add(refreshMenuItem);
 
-        jMenuItem2.setText("Settings...");
-        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+        settingsMenuItem.setText("Settings...");
+        settingsMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem2ActionPerformed(evt);
+                settingsMenuItemActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem2);
+        jMenu1.add(settingsMenuItem);
         jMenu1.add(jSeparator1);
 
-        jMenuItem3.setText("Exit");
-        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+        exitMenuItem.setText("Exit");
+        exitMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem3ActionPerformed(evt);
+                exitMenuItemActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem3);
+        jMenu1.add(exitMenuItem);
 
         jMenuBar1.add(jMenu1);
 
         jMenu2.setText("Open");
 
-        jMenuItem5.setText("Open file...");
-        jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
+        openFileMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ENTER, 0));
+        openFileMenuItem.setText("Open file...");
+        openFileMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem5ActionPerformed(evt);
+                openFileMenuItemActionPerformed(evt);
             }
         });
-        jMenu2.add(jMenuItem5);
+        jMenu2.add(openFileMenuItem);
 
-        jMenuItem4.setText("Open folder");
-        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+        openFolderMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_SPACE, 0));
+        openFolderMenuItem.setText("Open folder");
+        openFolderMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem4ActionPerformed(evt);
+                openFolderMenuItemActionPerformed(evt);
             }
         });
-        jMenu2.add(jMenuItem4);
+        jMenu2.add(openFolderMenuItem);
 
         jMenuBar1.add(jMenu2);
 
@@ -223,20 +226,38 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        try {
-            try {
-                Top3CsvWriter.write(directories, new File(LOCATION));
-            } catch (Exception ex) {
-                Logger.getLogger(CsvCacheDocumentWindow.class.getName()).log(Level.SEVERE, null, ex);
+    private void refreshMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshMenuItemActionPerformed
+        final JDialog dlg = new JDialog(this, "Progress Dialog", true);
+        JProgressBar dpb = new JProgressBar(0, 500);
+        dpb.setIndeterminate(true);
+        dlg.add(BorderLayout.CENTER, dpb);
+        dlg.add(BorderLayout.NORTH, new JLabel("Progress..."));
+        dlg.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        dlg.setSize(300, 75);
+        dlg.setLocationRelativeTo(this);
+
+        Thread t = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    Top3CsvWriter.write(directories, new File(LOCATION));
+                } catch (Exception ex) {
+                    Logger.getLogger(CsvCacheDocumentWindow.class.getName()).log(Level.SEVERE, null, ex);
+                }
+        
+                dlg.setVisible(false);                       
+                resetTable();
             }
-            //start the scan.
+        });
+        t.start();
+        dlg.setVisible(true);
+        
+        try {
             loadData();
             resetTable();
         } catch (IOException ex) {
             Logger.getLogger(CsvCacheDocumentWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_jMenuItem1ActionPerformed
+    }//GEN-LAST:event_refreshMenuItemActionPerformed
 
     private void jTextPane1KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextPane1KeyTyped
 
@@ -246,16 +267,16 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
         resetTable();
     }//GEN-LAST:event_jTextPane1KeyReleased
 
-    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+    private void settingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_settingsMenuItemActionPerformed
         CsvSettingsFrame frame = new CsvSettingsFrame();
         frame.setVisible(true);
-    }//GEN-LAST:event_jMenuItem2ActionPerformed
+    }//GEN-LAST:event_settingsMenuItemActionPerformed
 
-    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+    private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
         System.exit(0);
-    }//GEN-LAST:event_jMenuItem3ActionPerformed
+    }//GEN-LAST:event_exitMenuItemActionPerformed
 
-    private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
+    private void openFileMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileMenuItemActionPerformed
         if (jTable1.getSelectedRow() > -1)
         {
            String file = jTable1.getModel().getValueAt(jTable1.getSelectedRow(), 0).toString();
@@ -265,9 +286,9 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
                 Logger.getLogger(CsvCacheDocumentWindow.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-    }//GEN-LAST:event_jMenuItem5ActionPerformed
+    }//GEN-LAST:event_openFileMenuItemActionPerformed
 
-    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+    private void openFolderMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFolderMenuItemActionPerformed
         if (jTable1.getSelectedRow() > -1)
         {
            File file = new File(paths.get(jTable1.getSelectedRow()).filename);
@@ -277,7 +298,7 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
                 Logger.getLogger(CsvCacheDocumentWindow.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-    }//GEN-LAST:event_jMenuItem4ActionPerformed
+    }//GEN-LAST:event_openFolderMenuItemActionPerformed
 
     private void resetTable() {
         final DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
@@ -326,20 +347,20 @@ public class CsvCacheDocumentWindow extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem exitMenuItem;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem2;
-    private javax.swing.JMenuItem jMenuItem3;
-    private javax.swing.JMenuItem jMenuItem4;
-    private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JTable jTable1;
     private javax.swing.JTextPane jTextPane1;
+    private javax.swing.JMenuItem openFileMenuItem;
+    private javax.swing.JMenuItem openFolderMenuItem;
+    private javax.swing.JMenuItem refreshMenuItem;
+    private javax.swing.JMenuItem settingsMenuItem;
     // End of variables declaration//GEN-END:variables
 
     private void loadData() throws FileNotFoundException, IOException
