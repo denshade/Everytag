@@ -88,6 +88,7 @@ public class DocumentWindows extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Scanny");
 
+        jTable1.setAutoCreateRowSorter(true);
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -182,20 +183,21 @@ public class DocumentWindows extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        List<String> str = new ArrayList<>();
+        List<String> scanDirectories = new ArrayList<>();
 
         try {
             String[] loadSettings = SettingsFrame.loadSettings();
-            str = Arrays.asList(loadSettings);
+            scanDirectories = Arrays.asList(loadSettings);
+            scanDirectories = scanDirectories.subList(1, scanDirectories.size());
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(DocumentWindows.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(DocumentWindows.class.getName()).log(Level.SEVERE, null, ex);
         }
         FileMetaDataLoader metadataLoader = new FileMetaDataLoader();
-        paths = metadataLoader.loadData(str);
+        paths = metadataLoader.loadData(scanDirectories);
         DocumentSetIdfCalculator calc = new DocumentSetIdfCalculator();
-        for (String file : str)
+        for (String file : scanDirectories)
         {
             try {        
                 for (Top3Terms term : calc.getTagsForFilesInDirectory(new File(file)))
